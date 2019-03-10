@@ -14,14 +14,14 @@ def createPlacemark(kmlDoc, coordinatesString):
     placemarkElement = kmlDoc.createElement('Placemark')
 
     # <Point>
+    styleUrlElement = kmlDoc.createElement('styleUrl')
+    styleUrlText = kmlDoc.createTextNode('#randomColorIcon')
+    styleUrlElement.appendChild(styleUrlText)
+    placemarkElement.appendChild(styleUrlElement)
+
+    # <Point>
     pointElement = kmlDoc.createElement('Point')
     placemarkElement.appendChild(pointElement)
-
-    # # <extrude> uncomment if you want a line underneath each point
-    # extrudeElement = kmlDoc.createElement('extrude')
-    # extrudeText = kmlDoc.createTextNode('1')
-    # extrudeElement.appendChild(extrudeText)
-    # pointElement.appendChild(extrudeElement)
 
     # <altitudeMode>
     altitudeElement = kmlDoc.createElement('altitudeMode')
@@ -38,6 +38,45 @@ def createPlacemark(kmlDoc, coordinatesString):
     # Return this marker
     return placemarkElement
 
+# <Style id="randomColorIcon">
+#       <IconStyle>
+#          <color>ff00ff00</color>
+#          <colorMode>random</colorMode>
+#          <scale>1.1</scale>
+#          <Icon>
+#             <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+#          </Icon>
+#       </IconStyle>
+#    </Style>
+
+def createIconStyle(kmlDoc):
+    # <Style>
+    styleElement = kmlDoc.createElement('Style')
+    styleElement.setAttribute('id', 'randomColorIcon')
+
+    # <IconStyle>
+    iconStyleElement = kmlDoc.createElement('IconStyle')
+    styleElement.appendChild(iconStyleElement)
+
+    # <color>
+    colorElement = kmlDoc.createElement('color')
+    colorText = kmlDoc.createTextNode('ff00ff00')
+    colorElement.appendChild(colorText)
+    iconStyleElement.appendChild(colorElement)
+
+    # <Icon>
+    iconElement = kmlDoc.createElement('Icon')
+    iconStyleElement.appendChild(iconElement)
+
+    # <href>
+    hrefElement = kmlDoc.createElement('href')
+    hrefText = kmlDoc.createTextNode('http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png')
+    hrefElement.appendChild(hrefText)
+    iconElement.appendChild(hrefElement)
+
+    # Return this marker
+    return styleElement
+
 
 def createKML(csvReader, fileName, order):
     # This constructs the KML document from the CSV file.
@@ -46,8 +85,14 @@ def createKML(csvReader, fileName, order):
         'http://earth.google.com/kml/2.2', 'kml')
     kmlElement.setAttribute('xmlns', 'http://earth.google.com/kml/2.2')
     kmlElement = kmlDoc.appendChild(kmlElement)
+
+    # <document>
     documentElement = kmlDoc.createElement('Document')
     documentElement = kmlElement.appendChild(documentElement)
+
+    # define different icon
+    styleElement = createIconStyle(kmlDoc)
+    documentElement.appendChild(styleElement)
 
     # This creates a  element for a row of data. A row is a dict.
     # <Placemark>
@@ -75,8 +120,8 @@ def createKML(csvReader, fileName, order):
 
     for row in csvReader:
         # Build the string for line path
-        coordinatesString = row['gps_long'] + "," + row['gps_lat'] + "," + row['gps_alti']
-        # coordinatesString = row['gps_long'] + "," + row['gps_lat'] + "," + row['baro_alti']
+        # coordinatesString = row['gps_long'] + "," + row['gps_lat'] + "," + row['gps_alti']
+        coordinatesString = row['gps_long'] + "," + row['gps_lat'] + "," + row['baro_alti']
         coordinates += coordinatesString + '\n'
 
         # Build each individual point
